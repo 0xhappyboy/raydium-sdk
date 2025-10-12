@@ -46,3 +46,12 @@ match Pubkey::from_str(address) {
     }
 }
 ```
+
+### get the current liquidity pool price
+
+```rust
+let rpc = RpcClient::new("".to_string());
+let ray = Raydium::new(Arc::new(rpc));
+let pool_data = ray.get_liquidity_pool_v4(pool_address).await.unwrap();
+let price = pool_data.get_price(Arc::clone(&ray.client)).await;
+```

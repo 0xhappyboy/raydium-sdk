@@ -1,9 +1,13 @@
-use std::str::from_utf8;
+use std::sync::Arc;
 
 use bytemuck::{Pod, Zeroable};
+use solana_client::nonblocking::rpc_client::RpcClient;
 use solana_sdk::pubkey::Pubkey;
-
-use crate::tool::reader::{r_u64, r_u128};
+use solana_tool::account::get_spl_token_balance;
+use solana_tool::reader::r_u64;
+use solana_tool::reader::r_u128;
+use solana_tool::unit::conver_balance;
+use tokio::join;
 
 /// raydium liquidity pool v4 data size
 const RAYDIUM_LIQUIDITY_POOL_V4_DATA_SIZE: usize = 752;
@@ -374,6 +378,27 @@ pub struct RaydiumLiquidityPoolData {
 }
 
 impl RaydiumLiquidityPoolData {
+    /// get the current liquidity pool price
+    /// Example
+    /// ```rust
+    /// // client
+    /// let rpc = RpcClient::new("".to_string());
+    /// let ray = Raydium::new(Arc::new(rpc));
+    /// let pool_data = ray.get_liquidity_pool_v4(pool_address).await.unwrap();
+    /// let price = pool_data.get_price(Arc::clone(&ray.client)).await;
+    /// ```
+    pub async fn get_price(&self, client: Arc<RpcClient>) -> f64 {
+        let base_token_vault_address = self.base_vault;
+        let base_quote_vault_address = self.quote_vault;
+        let (base_token_balance, quote_token_balance) = join!(
+            get_spl_token_balance(Arc::clone(&client), base_token_vault_address),
+            get_spl_token_balance(Arc::clone(&client), base_quote_vault_address)
+        );
+        let base_amount_normalized = conver_balance(base_token_balance.unwrap(), self.base_decimal);
+        let quote_amount_normalized =
+            conver_balance(quote_token_balance.unwrap(), self.quote_decimal);
+        quote_amount_normalized / base_amount_normalized
+    }
     pub fn display(&self) {
         println!("status:{:?}", self.status);
         println!("nonce:{:?}", self.nonce);

@@ -3,8 +3,17 @@ use std::str::from_utf8;
 use bytemuck::{Pod, Zeroable};
 use solana_sdk::pubkey::Pubkey;
 
-// raydium liquidity pool v4 data size
+use crate::tool::reader::{r_u64, r_u128};
+
+/// raydium liquidity pool v4 data size
 const RAYDIUM_LIQUIDITY_POOL_V4_DATA_SIZE: usize = 752;
+/// offset relative to the swap field
+const SWAP_BASE_IN_AMOUNT_OFFSET: usize = 256;
+const SWAP_QUOTE_OUT_AMOUNT_OFFSET: usize = 272;
+const SWAP_BASE2_QUOTE_FEE_OFFSET: usize = 288;
+const SWAP_QUOTE_IN_AMOUNT_OFFSET: usize = 296;
+const SWAP_BASE_OUT_AMOUNT_OFFSET: usize = 312;
+const SWAP_QUOTE2_BASE_FEE_OFFSET: usize = 328;
 
 /// raydium liquidity pool v4 raw data
 #[repr(C)]
@@ -42,16 +51,16 @@ pub struct RaydiumLiquidityPoolV4 {
     punish_pc_amount: u64,         // 232-239
     punish_coin_amount: u64,       // 240-247
     orderbook_to_init_time: u64,   // 248-255
-
+    // ====== used as a placeholder, not actually involved in deserialization ======
     swap_base_in_amount: u64,   // 256-263
     swap_quote_out_amount: u64, // 264-271
     swap_base2_quote_fee: u64,  // 272-279
     swap_quote_in_amount: u64,  // 280-287
     swap_base_out_amount: u64,  // 288-295
     swap_quote2_base_fee: u64,  // 296-303
-
-    // padding
-    padding: [u8; 32],           // 304-335
+    // =============================================================================
+    // padding 0
+    padding_0: [u8; 32],         // 304-335
     base_vault: [u8; 32],        // 336-367
     quote_vault: [u8; 32],       // 368-399
     base_mint: [u8; 32],         // 400-431
@@ -65,10 +74,12 @@ pub struct RaydiumLiquidityPoolV4 {
     lp_vault: [u8; 32],          // 656-687
     owner: [u8; 32],             // 752-783
     lp_reserve: u64,             // 688-719
+    // end padding
+    padding_1: [u64; 3],
 }
 
 impl RaydiumLiquidityPoolV4 {
-    pub fn get_liquidity_pool_info(data: &[u8]) -> Result<&Self, String> {
+    pub fn get_liquidity_pool_info(data: &[u8]) -> Result<RaydiumLiquidityPoolData, String> {
         if data.len() != RAYDIUM_LIQUIDITY_POOL_V4_DATA_SIZE {
             return Err(
                 "raydium liquidity pool v4 data size does not meet requirements.".to_string(),
@@ -78,7 +89,68 @@ impl RaydiumLiquidityPoolV4 {
             return Err("account data length error".to_string());
         }
         let pool = bytemuck::from_bytes::<Self>(&data[0..std::mem::size_of::<Self>()]);
-        Ok(pool)
+        // ===================== manual parsing swap field =====================
+        let swap_base_in_amount = r_u128(data, SWAP_BASE_IN_AMOUNT_OFFSET);
+        let swap_quote_out_amount = r_u128(data, SWAP_QUOTE_OUT_AMOUNT_OFFSET);
+        let swap_base2_quote_fee = r_u64(data, SWAP_BASE2_QUOTE_FEE_OFFSET);
+        let swap_quote_in_amount = r_u128(data, SWAP_QUOTE_IN_AMOUNT_OFFSET);
+        let swap_base_out_amount = r_u128(data, SWAP_BASE_OUT_AMOUNT_OFFSET);
+        let swap_quote2_base_fee = r_u64(data, SWAP_QUOTE2_BASE_FEE_OFFSET);
+        // ===================== manual parsing swap field =====================
+        let pool_data: RaydiumLiquidityPoolData = RaydiumLiquidityPoolData {
+            status: pool.status(),
+            nonce: pool.nonce(),
+            max_order: pool.max_order(),
+            depth: pool.depth(),
+            base_decimal: pool.base_decimal(),
+            quote_decimal: pool.quote_decimal(),
+            state: pool.state(),
+            reset_flag: pool.reset_flag(),
+            min_size: pool.min_size(),
+            vol_max_cut_ratio: pool.vol_max_cut_ratio(),
+            amount_wave_ratio: pool.amount_wave_ratio(),
+            base_lot_size: pool.base_lot_size(),
+            quote_lot_size: pool.quote_lot_size(),
+            min_price_multiplier: pool.min_price_multiplier(),
+            max_price_multiplier: pool.max_price_multiplier(),
+            system_decimal_value: pool.system_decimal_value(),
+            min_separate_numerator: pool.min_separate_numerator(),
+            min_separate_denominator: pool.min_separate_denominator(),
+            trade_fee_numerator: pool.trade_fee_numerator(),
+            trade_fee_denominator: pool.trade_fee_denominator(),
+            pnl_numerator: pool.pnl_numerator(),
+            pnl_denominator: pool.pnl_denominator(),
+            swap_fee_numerator: pool.swap_fee_numerator(),
+            swap_fee_denominator: pool.swap_fee_denominator(),
+            base_need_take_pnl: pool.base_need_take_pnl(),
+            quote_need_take_pnl: pool.quote_need_take_pnl(),
+            quote_total_pnl: pool.quote_total_pnl(),
+            base_total_pnl: pool.base_total_pnl(),
+            pool_open_time: pool.pool_open_time(),
+            punish_pc_amount: pool.punish_pc_amount(),
+            punish_coin_amount: pool.punish_coin_amount(),
+            orderbook_to_init_time: pool.orderbook_to_init_time(),
+            swap_base_in_amount,
+            swap_quote_out_amount,
+            swap_base2_quote_fee,
+            swap_quote_in_amount,
+            swap_base_out_amount,
+            swap_quote2_base_fee,
+            base_vault: pool.base_vault(),
+            quote_vault: pool.quote_vault(),
+            base_mint: pool.base_mint(),
+            quote_mint: pool.quote_mint(),
+            lp_mint: pool.lp_mint(),
+            open_orders: pool.open_orders(),
+            market_id: pool.market_id(),
+            market_program_id: pool.market_program_id(),
+            target_orders: pool.target_orders(),
+            withdraw_queue: pool.withdraw_queue(),
+            lp_vault: pool.lp_vault(),
+            owner: pool.owner(),
+            lp_reserve: pool.lp_reserve(),
+        };
+        Ok(pool_data)
     }
     pub fn base_mint_pubkey(&self) -> Pubkey {
         Pubkey::new_from_array(self.base_mint)
@@ -188,24 +260,6 @@ impl RaydiumLiquidityPoolV4 {
     pub fn orderbook_to_init_time(&self) -> u64 {
         self.orderbook_to_init_time
     }
-    pub fn swap_base_in_amount(&self) -> u64 {
-        self.swap_base_in_amount as u64
-    }
-    pub fn swap_quote_out_amount(&self) -> u64 {
-        self.swap_base_out_amount as u64
-    }
-    pub fn swap_base2_quote_fee(&self) -> u64 {
-        self.swap_base2_quote_fee as u64
-    }
-    pub fn swap_quote_in_amount(&self) -> u64 {
-        self.swap_base_in_amount as u64
-    }
-    pub fn swap_base_out_amount(&self) -> u64 {
-        self.swap_base_out_amount as u64
-    }
-    pub fn swap_quote2_base_fee(&self) -> u64 {
-        self.swap_quote2_base_fee as u64
-    }
     pub fn lp_reserve(&self) -> u64 {
         self.lp_reserve
     }
@@ -245,62 +299,115 @@ impl RaydiumLiquidityPoolV4 {
     pub fn owner(&self) -> Pubkey {
         Pubkey::new_from_array(self.owner)
     }
+}
+
+#[derive(Debug, Clone)]
+pub struct RaydiumLiquidityPoolData {
+    pub status: u8,
+    pub nonce: u8,
+    pub max_order: u8,
+    pub depth: u8,
+    pub base_decimal: u8,
+    pub quote_decimal: u8,
+    pub state: u8,
+    pub reset_flag: u8,
+    pub min_size: u64,
+    pub vol_max_cut_ratio: u64,
+    pub amount_wave_ratio: u64,
+    pub base_lot_size: u64,
+    pub quote_lot_size: u64,
+    pub min_price_multiplier: u64,
+    pub max_price_multiplier: u64,
+    pub system_decimal_value: u64,
+    pub min_separate_numerator: u64,
+    pub min_separate_denominator: u64,
+    pub trade_fee_numerator: u64,
+    pub trade_fee_denominator: u64,
+    pub pnl_numerator: u64,
+    pub pnl_denominator: u64,
+    pub swap_fee_numerator: u64,
+    pub swap_fee_denominator: u64,
+    pub base_need_take_pnl: u64,
+    pub quote_need_take_pnl: u64,
+    pub quote_total_pnl: u64,
+    pub base_total_pnl: u64,
+    pub pool_open_time: u64,
+    pub punish_pc_amount: u64,
+    pub punish_coin_amount: u64,
+    pub orderbook_to_init_time: u64,
+    pub swap_base_in_amount: u128,
+    pub swap_quote_out_amount: u128,
+    pub swap_base2_quote_fee: u64,
+    pub swap_quote_in_amount: u128,
+    pub swap_base_out_amount: u128,
+    pub swap_quote2_base_fee: u64,
+    pub base_vault: Pubkey,
+    pub quote_vault: Pubkey,
+    pub base_mint: Pubkey,
+    pub quote_mint: Pubkey,
+    pub lp_mint: Pubkey,
+    pub open_orders: Pubkey,
+    pub market_id: Pubkey,
+    pub market_program_id: Pubkey,
+    pub target_orders: Pubkey,
+    pub withdraw_queue: Pubkey,
+    pub lp_vault: Pubkey,
+    pub owner: Pubkey,
+    pub lp_reserve: u64,
+}
+
+impl RaydiumLiquidityPoolData {
     pub fn display(&self) {
-        println!("status:{:?}", self.status());
-        println!("nonce:{:?}", self.nonce());
-        println!("max_order:{:?}", self.max_order());
-        println!("depth:{:?}", self.depth());
-        println!("base_decimal:{:?}", self.base_decimal());
-        println!("quote_decimal:{:?}", self.quote_decimal());
-        println!("state:{:?}", self.state());
-        println!("resetFlag:{:?}", self.reset_flag());
-        println!("minSize:{:?}", self.min_size());
-        println!("volMaxCutRatio:{:?}", self.vol_max_cut_ratio());
-        println!("amountWaveRatio:{:?}", self.amount_wave_ratio());
-        println!("baseLotSize:{:?}", self.base_lot_size());
-        println!("quoteLotSize:{:?}", self.quote_lot_size());
-        println!("minPriceMultiplier:{:?}", self.min_price_multiplier());
-        println!("maxPriceMultiplier:{:?}", self.max_price_multiplier());
-        println!("systemDecimalValue:{:?}", self.system_decimal_value());
-        println!("minSeparateNumerator:{:?}", self.min_separate_numerator());
-        println!(
-            "minSeparateDenominator:{:?}",
-            self.min_separate_denominator()
-        );
-        println!("tradeFeeNumerator:{:?}", self.trade_fee_numerator());
-        println!("tradeFeeDenominator:{:?}", self.trade_fee_denominator());
-        println!("pnlNumerator:{:?}", self.pnl_numerator());
-        println!("pnlDenominator:{:?}", self.pnl_denominator());
-        println!("swapFeeNumerator:{:?}", self.swap_fee_numerator());
-        println!("swapFeeDenominator:{:?}", self.swap_fee_denominator());
-        println!("baseNeedTakePnl:{:?}", self.base_need_take_pnl());
-        println!("quoteNeedTakePnl:{:?}", self.quote_need_take_pnl());
-        println!("quoteTotalPnl:{:?}", self.quote_total_pnl());
-        println!("baseTotalPnl:{:?}", self.base_total_pnl());
-        println!("poolOpenTime:{:?}", self.pool_open_time());
-        println!("punishPcAmount:{:?}", self.punish_pc_amount());
-        println!("punishCoinAmount:{:?}", self.punish_coin_amount());
-        println!("orderbookToInitTime:{:?}", self.orderbook_to_init_time());
-
-        println!("swapBaseInAmount:{:?}", self.swap_base_in_amount());
-        println!("swapQuoteOutAmount:{:?}", self.swap_base2_quote_fee());
-        println!("swapBase2QuoteFee:{:?}", self.swap_base_out_amount());
-        println!("swapQuoteInAmount:{:?}", self.swap_quote2_base_fee());
-        println!("swapBaseOutAmount:{:?}", self.swap_quote_in_amount());
-        println!("swapQuote2BaseFee:{:?}", self.swap_quote_out_amount());
-
-        println!("baseVault:{:?}", self.base_vault());
-        println!("quoteVault:{:?}", self.quote_vault());
-        println!("baseMint:{:?}", self.base_mint());
-        println!("quoteMint:{:?}", self.quote_mint());
-        println!("lpMint:{:?}", self.lp_mint());
-        println!("openOrders:{:?}", self.open_orders());
-        println!("marketId:{:?}", self.market_id());
-        println!("marketProgramId:{:?}", self.market_program_id());
-        println!("targetOrders:{:?}", self.target_orders());
-        println!("withdrawQueue:{:?}", self.withdraw_queue());
-        println!("lpVault:{:?}", self.lp_vault());
-        println!("owner:{:?}", self.owner());
-        println!("lpReserve:{:?}", self.lp_reserve());
+        println!("status:{:?}", self.status);
+        println!("nonce:{:?}", self.nonce);
+        println!("max_order:{:?}", self.max_order);
+        println!("depth:{:?}", self.depth);
+        println!("base_decimal:{:?}", self.base_decimal);
+        println!("quote_decimal:{:?}", self.quote_decimal);
+        println!("state:{:?}", self.state);
+        println!("resetFlag:{:?}", self.reset_flag);
+        println!("minSize:{:?}", self.min_size);
+        println!("volMaxCutRatio:{:?}", self.vol_max_cut_ratio);
+        println!("amountWaveRatio:{:?}", self.amount_wave_ratio);
+        println!("baseLotSize:{:?}", self.base_lot_size);
+        println!("quoteLotSize:{:?}", self.quote_lot_size);
+        println!("minPriceMultiplier:{:?}", self.min_price_multiplier);
+        println!("maxPriceMultiplier:{:?}", self.max_price_multiplier);
+        println!("systemDecimalValue:{:?}", self.system_decimal_value);
+        println!("minSeparateNumerator:{:?}", self.min_separate_numerator);
+        println!("minSeparateDenominator:{:?}", self.min_separate_denominator);
+        println!("tradeFeeNumerator:{:?}", self.trade_fee_numerator);
+        println!("tradeFeeDenominator:{:?}", self.trade_fee_denominator);
+        println!("pnlNumerator:{:?}", self.pnl_numerator);
+        println!("pnlDenominator:{:?}", self.pnl_denominator);
+        println!("swapFeeNumerator:{:?}", self.swap_fee_numerator);
+        println!("swapFeeDenominator:{:?}", self.swap_fee_denominator);
+        println!("baseNeedTakePnl:{:?}", self.base_need_take_pnl);
+        println!("quoteNeedTakePnl:{:?}", self.quote_need_take_pnl);
+        println!("quoteTotalPnl:{:?}", self.quote_total_pnl);
+        println!("baseTotalPnl:{:?}", self.base_total_pnl);
+        println!("poolOpenTime:{:?}", self.pool_open_time);
+        println!("punishPcAmount:{:?}", self.punish_pc_amount);
+        println!("punishCoinAmount:{:?}", self.punish_coin_amount);
+        println!("orderbookToInitTime:{:?}", self.orderbook_to_init_time);
+        println!("swapBaseInAmount:{:?}", self.swap_base_in_amount);
+        println!("swapQuoteOutAmount:{:?}", self.swap_quote_out_amount);
+        println!("swapBase2QuoteFee:{:?}", self.swap_base2_quote_fee);
+        println!("swapQuoteInAmount:{:?}", self.swap_quote_in_amount);
+        println!("swapBaseOutAmount:{:?}", self.swap_base_out_amount);
+        println!("swapQuote2BaseFee:{:?}", self.swap_quote2_base_fee);
+        println!("baseVault:{:?}", self.base_vault);
+        println!("quoteVault:{:?}", self.quote_vault);
+        println!("baseMint:{:?}", self.base_mint);
+        println!("quoteMint:{:?}", self.quote_mint);
+        println!("lpMint:{:?}", self.lp_mint);
+        println!("openOrders:{:?}", self.open_orders);
+        println!("marketId:{:?}", self.market_id);
+        println!("marketProgramId:{:?}", self.market_program_id);
+        println!("targetOrders:{:?}", self.target_orders);
+        println!("withdrawQueue:{:?}", self.withdraw_queue);
+        println!("lpVault:{:?}", self.lp_vault);
+        println!("owner:{:?}", self.owner);
+        println!("lpReserve:{:?}", self.lp_reserve);
     }
 }

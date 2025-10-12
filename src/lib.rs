@@ -18,6 +18,7 @@ impl Raydium {
     /// Example
     /// ```rust
     /// let rpc = RpcClient::new("rpc url");
+    /// let raydium = Raydium::new(Arc::new(rpc));
     /// ```
     pub fn new(client: Arc<RpcClient>) -> Self {
         Self { client: client }
@@ -28,7 +29,7 @@ impl Raydium {
     /// let rpc = RpcClient::new("rpc url");
     /// let raydium = Raydium::new(Arc::new(rpc));
     /// // 58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2 SOL-USDC pool
-    /// let pool_data = raydium.get_liquidity_pool_v4("58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2");
+    /// let pool_data = raydium.get_liquidity_pool_v4("58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2").await;
     /// ```
     pub async fn get_liquidity_pool_v4(
         &self,

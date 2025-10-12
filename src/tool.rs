@@ -1,6 +1,5 @@
 /// reader associated with byte arrays
 pub mod reader {
-    use solana_client::rpc_client::RpcClient;
     use solana_sdk::pubkey::Pubkey;
     pub fn r_u8(data: &[u8], offset: usize) -> u8 {
         if data.len() <= offset {

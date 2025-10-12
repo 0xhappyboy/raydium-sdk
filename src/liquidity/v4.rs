@@ -79,6 +79,23 @@ pub struct RaydiumLiquidityPoolV4 {
 }
 
 impl RaydiumLiquidityPoolV4 {
+    /// parsing the data structure of the Liquidity v4 pool
+    /// # Example
+    /// ```rust
+    /// let address: &str = "public key";
+    /// match Pubkey::from_str(address) {
+    ///     Ok(pool_address) => match self.client.get_account_data(&pool_address).await {
+    ///         Ok(v) => match RaydiumLiquidityPoolV4::get_liquidity_pool_info(&v) {
+    ///             Ok(pool) => return Ok(pool.clone()),
+    ///             Err(e) => return Err(e),
+    ///         },
+    ///         Err(e) => Err(format!("{:?}", e)),
+    ///     },
+    ///     Err(e) => {
+    ///         return Err(format!("{:?}", e));
+    ///     }
+    /// }
+    /// ```
     pub fn get_liquidity_pool_info(data: &[u8]) -> Result<RaydiumLiquidityPoolData, String> {
         if data.len() != RAYDIUM_LIQUIDITY_POOL_V4_DATA_SIZE {
             return Err(

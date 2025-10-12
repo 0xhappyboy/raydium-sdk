@@ -2,7 +2,7 @@
     Raydium SDK
 </h1>
 <h4 align="center">
-Implemented functions related to interaction with raydium.
+实现了与 Raydium 交互的相关功能.
 </h4>
 <p align="center">
   <a href="https://github.com/0xhappyboy/raydium-sdk/LICENSE"><img src="https://img.shields.io/badge/License-GPL3.0-d1d1f6.svg?style=flat&labelColor=1C2C2E&color=BEC5C9&logo=googledocs&label=license&logoColor=BEC5C9" alt="License"></a>
@@ -11,16 +11,16 @@ Implemented functions related to interaction with raydium.
 <a href="./README_zh-CN.md">简体中文</a> | <a href="./README.md">English</a>
 </p>
 
-## Example
+## 例子
 
-### create Raydium object
+### 创建Raydium对象
 
 ```rust
 let rpc = RpcClient::new("rpc url");
 let raydium = Raydium::new(Arc::new(rpc));
 ```
 
-### get the data of the V4 liquidity pool of the specified address
+### 根据指定地址获取v4 pool的数据
 
 ```rust
 let rpc = RpcClient::new("rpc url");
@@ -29,7 +29,7 @@ let raydium = Raydium::new(Arc::new(rpc));
 let pool_data = raydium.get_liquidity_pool_v4("58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2");
 ```
 
-### parsing the data structure of the Liquidity v4 pool
+### 解析v4 pool的数据
 
 ```rust
 let address: &str = "public key";

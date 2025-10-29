@@ -2267,7 +2267,7 @@ dependencies = [
 
 [[package]]
 name = "raydium-sdk"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "bytemuck",
  "solana-client",
@@ -3693,9 +3693,9 @@ dependencies = [
 
 [[package]]
 name = "solana-network-sdk"
-version = "0.1.9"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c054bf51f412a044a275be22f20ac512cf5fb3b6b9359f348c53959907e246b"
+checksum = "fc156737bb370ce2ad90a307ae86fc38d02937958f66982e0eb926bb5714cb52"
 dependencies = [
  "bs58",
  "bytemuck",

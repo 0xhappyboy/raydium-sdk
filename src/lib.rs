@@ -2,7 +2,10 @@ pub mod liquidity;
 pub mod typs;
 
 use solana_client::nonblocking::rpc_client::RpcClient;
-use solana_network_sdk::Solana;
+use solana_network_sdk::{
+    Solana,
+    types::{UnifiedError, UnifiedResult},
+};
 use solana_sdk::pubkey::Pubkey;
 use std::{str::FromStr, sync::Arc};
 
@@ -34,19 +37,15 @@ impl Raydium {
     pub async fn get_liquidity_pool_v4(
         &self,
         address: &str,
-    ) -> Result<RaydiumLiquidityPoolData, String> {
-        match Pubkey::from_str(address) {
-            Ok(pool_address) => match self.client.get_account_data(&pool_address).await {
-                Ok(v) => match RaydiumLiquidityPoolV4::get_liquidity_pool_info(&v) {
-                    Ok(pool) => return Ok(pool.clone()),
-                    Err(e) => return Err(e),
-                },
-                Err(e) => Err(format!("get liquidity pool error:{:?}", e)),
-            },
-            Err(e) => {
-                return Err(format!("{:?}", e));
-            }
-        }
+    ) -> UnifiedResult<RaydiumLiquidityPoolData, String> {
+        let v = self
+            .solana
+            .get_account_data(address)
+            .await
+            .map_err(|e| UnifiedError::Error(format!("{:?}", e)))?;
+        let pool = RaydiumLiquidityPoolV4::get_liquidity_pool_info(&v)
+            .map_err(|e| UnifiedError::Error(format!("{:?}", e)))?;
+        Ok(pool)
     }
     // get token price by address
     pub async fn get_token_price_by_address(&self) {}

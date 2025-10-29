@@ -1,6 +1,6 @@
 [package]
 name = "raydium-sdk"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2024"
 authors = ["happyboy <superhappyboy1995@gmail.com>"]
 description = "raydium sdk"
@@ -16,3 +16,4 @@ solana-transaction-status = "3.0.0"
 tokio = { version = "1.0", features = ["full", "rt-multi-thread"] }
 bytemuck = "1.24.0"
 solana-tool = "0.1.1"
+solana-network-sdk = { version = "0.2.0" }

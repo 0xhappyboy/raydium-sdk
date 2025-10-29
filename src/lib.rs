@@ -2,6 +2,7 @@ pub mod liquidity;
 pub mod typs;
 
 use solana_client::nonblocking::rpc_client::RpcClient;
+use solana_network_sdk::Solana;
 use solana_sdk::pubkey::Pubkey;
 use std::{str::FromStr, sync::Arc};
 
@@ -9,24 +10,24 @@ use crate::liquidity::v4::{RaydiumLiquidityPoolData, RaydiumLiquidityPoolV4};
 
 /// raydium data structure
 pub struct Raydium {
-    pub client: Arc<RpcClient>,
+    pub solana: Arc<Solana>,
 }
 
 impl Raydium {
     /// crreate raydium
     /// Example
     /// ```rust
-    /// let rpc = RpcClient::new("rpc url");
-    /// let raydium = Raydium::new(Arc::new(rpc));
+    /// let sol = Solana::new(solana_network_sdk::types::Mode::MAIN);
+    /// let raydium = Raydium::new(Arc::new(sol));
     /// ```
-    pub fn new(client: Arc<RpcClient>) -> Self {
-        Self { client: client }
+    pub fn new(solana: Arc<Solana>) -> Self {
+        Self { solana: solana }
     }
     /// get v4 raydium liquidity pool
     /// Example
     /// ```rust
-    /// let rpc = RpcClient::new("rpc url");
-    /// let raydium = Raydium::new(Arc::new(rpc));
+    /// let sol = Solana::new(solana_network_sdk::types::Mode::MAIN);
+    /// let raydium = Raydium::new(Arc::new(sol));
     /// // 58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2 SOL-USDC pool
     /// let pool_data = raydium.get_liquidity_pool_v4("58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2").await;
     /// ```

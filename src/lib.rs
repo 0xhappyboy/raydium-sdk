@@ -9,7 +9,10 @@ use solana_network_sdk::{
 use solana_sdk::pubkey::Pubkey;
 use std::{str::FromStr, sync::Arc};
 
-use crate::liquidity::v4::{RaydiumLiquidityPoolData, RaydiumLiquidityPoolV4};
+use crate::liquidity::{
+    cpmm::{ RaydiumLiquidityPoolCPMM, RaydiumLiquidityPoolCPMMData},
+    v4::{RaydiumLiquidityPoolData, RaydiumLiquidityPoolV4},
+};
 
 /// raydium data structure
 pub struct Raydium {
@@ -44,6 +47,19 @@ impl Raydium {
             .await
             .map_err(|e| UnifiedError::Error(format!("{:?}", e)))?;
         let pool = RaydiumLiquidityPoolV4::get_liquidity_pool_info(&v)
+            .map_err(|e| UnifiedError::Error(format!("{:?}", e)))?;
+        Ok(pool)
+    }
+    pub async fn get_liquidity_pool_cpmm(
+        &self,
+        address: &str,
+    ) -> UnifiedResult<RaydiumLiquidityPoolCPMMData, String> {
+        let v = self
+            .solana
+            .get_account_data(address)
+            .await
+            .map_err(|e| UnifiedError::Error(format!("{:?}", e)))?;
+        let pool = RaydiumLiquidityPoolCPMM::get_liquidity_pool_info(&v)
             .map_err(|e| UnifiedError::Error(format!("{:?}", e)))?;
         Ok(pool)
     }

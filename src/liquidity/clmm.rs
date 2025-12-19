@@ -14,44 +14,56 @@ unsafe impl Zeroable for RaydiumLiquidityPoolCLMM {}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct RaydiumLiquidityPoolCLMM {
-    pub bump: u8,                        // 0: bump seed
-    pub amm_config: [u8; 32],            // 1-32: AMM configuration
-    pub owner: [u8; 32],                 // 33-64: Pool owner (program owner)
-    pub token_mint_0: [u8; 32],          // 65-96: Token0 mint address
-    pub token_mint_1: [u8; 32],          // 97-128: Token1 mint address
-    pub token_vault_0: [u8; 32],         // 129-160: Token0 vault
-    pub token_vault_1: [u8; 32],         // 161-192: Token1 vault
-    pub observation_key: [u8; 32],       // 193-224: Observation address
-    pub mint_decimals_0: u8,             // 225: Token0 decimals
-    pub mint_decimals_1: u8,             // 226: Token1 decimals
-    pub tick_spacing: u16,               // 227-228: Tick spacing
-    pub liquidity: u128,                 // 229-244: Total liquidity
-    pub sqrt_price_x64: u128,            // 245-260: Current sqrt price * 2^64
-    pub tick_current: i32,               // 261-264: Current tick
-    pub padding3: u16,                   // 265-266: Padding
-    pub padding4: u16,                   // 267-268: Padding
-    pub fee_growth_global_0_x64: u128,   // 269-284: Token0 global fee growth
-    pub fee_growth_global_1_x64: u128,   // 285-300: Token1 global fee growth
-    pub protocol_fees_token_0: u64,      // 301-308: Token0 protocol fees
-    pub protocol_fees_token_1: u64,      // 309-316: Token1 protocol fees
-    pub swap_in_amount_token_0: u128,    // 317-332: Token0 cumulative swap in amount
-    pub swap_out_amount_token_1: u128,   // 333-348: Token1 cumulative swap out amount
-    pub swap_in_amount_token_1: u128,    // 349-364: Token1 cumulative swap in amount
-    pub swap_out_amount_token_0: u128,   // 365-380: Token0 cumulative swap out amount
-    pub status: u8,                      // 381: Status
-    pub padding: [u8; 7],                // 382-388: Padding
-    pub reward_infos: [[u8; 104]; 3],    // 389-700: Reward info (3 reward pools)
-    pub tick_array_bitmap: [u64; 16],    // 701-828: Tick array bitmap (16 u64s)
-    pub total_fees_token_0: u64,         // 829-836: Token0 total fees
-    pub total_fees_claimed_token_0: u64, // 837-844: Token0 claimed fees
-    pub total_fees_token_1: u64,         // 845-852: Token1 total fees
-    pub total_fees_claimed_token_1: u64, // 853-860: Token1 claimed fees
-    pub fund_fees_token_0: u64,          // 861-868: Token0 fund fees
-    pub fund_fees_token_1: u64,          // 869-876: Token1 fund fees
-    pub open_time: u64,                  // 877-884: Open time
-    pub recent_epoch: u64,               // 885-892: Recent epoch
-    pub padding1: [[u8; 8]; 24],         // 893-1084: Padding (24 u64s)
-    pub padding2: [[u8; 8]; 32],         // 1085-1340: Padding (32 u64s)
+    pub bump: u8,                      // 0: bump seed
+    pub amm_config: [u8; 32],          // 1-32: AMM configuration
+    pub owner: [u8; 32],               // 33-64: Pool owner (program owner)
+    pub token_mint_0: [u8; 32],        // 65-96: Token0 mint address
+    pub token_mint_1: [u8; 32],        // 97-128: Token1 mint address
+    pub token_vault_0: [u8; 32],       // 129-160: Token0 vault
+    pub token_vault_1: [u8; 32],       // 161-192: Token1 vault
+    pub observation_key: [u8; 32],     // 193-224: Observation address
+    pub mint_decimals_0: u8,           // 225: Token0 decimals
+    pub mint_decimals_1: u8,           // 226: Token1 decimals
+    pub tick_spacing: u16,             // 227-228: Tick spacing
+    pub liquidity: u128,               // 229-244: Total liquidity
+    pub sqrt_price_x64: u128,          // 245-260: Current sqrt price * 2^64
+    pub tick_current: i32,             // 261-264: Current tick
+    pub padding3: u16,                 // 265-266: Padding
+    pub padding4: u16,                 // 267-268: Padding
+    pub fee_growth_global_0_x64: u128, // 269-284: Token0 global fee growth
+    pub fee_growth_global_1_x64: u128, // 285-300: Token1 global fee growth
+    pub protocol_fees_token_0: u64,    // 301-308: Token0 protocol fees
+    pub protocol_fees_token_1: u64,    // 309-316: Token1 protocol fees
+    pub swap_in_amount_token_0: u128,  // 317-332: Token0 cumulative swap in amount
+    pub swap_out_amount_token_1: u128, // 333-348: Token1 cumulative swap out amount
+    pub swap_in_amount_token_1: u128,  // 349-364: Token1 cumulative swap in amount
+    pub swap_out_amount_token_0: u128, // 365-380: Token0 cumulative swap out amount
+    pub status: u8,                    // 381: Status
+    pub padding: [u8; 7],              // 382-388: Padding
+    // 389-1075: Reward info (3 reward pools, 169*3=507bytes)
+    pub reward_infos: [[u8; 169]; 3],
+    // 1076-1203: Tick array bitmap (16 u64s = 128bytes)
+    pub tick_array_bitmap: [u64; 16],
+    // 1204-1211: Token0 total fees (8bytes)
+    pub total_fees_token_0: u64,
+    // 1212-1219: Token0 claimed fees (8bytes)
+    pub total_fees_claimed_token_0: u64,
+    // 1220-1227: Token1 total fees (8bytes)
+    pub total_fees_token_1: u64,
+    // 1228-1235: Token1 claimed fees (8bytes)
+    pub total_fees_claimed_token_1: u64,
+    // 1236-1243: Token0 fund fees (8bytes)
+    pub fund_fees_token_0: u64,
+    // 1244-1251: Token1 fund fees (8bytes)
+    pub fund_fees_token_1: u64,
+    // 1252-1259: Open time (8bytes)
+    pub open_time: u64,
+    // 1260-1267: Recent epoch (8bytes)
+    pub recent_epoch: u64,
+    // 1268-1459: Padding (24 u64s = 192bytes)
+    pub padding1: [[u8; 8]; 24],
+    // 1460-1715: Padding (32 u64s = 256bytes)
+    pub padding2: [[u8; 8]; 32],
 }
 
 #[derive(Debug, Clone)]
@@ -93,17 +105,18 @@ pub struct RaydiumLiquidityPoolCLMMData {
 
 #[derive(Debug, Clone)]
 pub struct RewardInfo {
-    pub reward_state: u8,
-    pub open_time: u64,
-    pub end_time: u64,
-    pub last_update_time: u64,
-    pub emissions_per_second_x64: u128,
-    pub reward_total_emissioned: u64,
-    pub reward_claimed: u64,
-    pub token_mint: Pubkey,
-    pub token_vault: Pubkey,
-    pub authority: Pubkey,
-    pub reward_growth_global_x64: u128,
+    pub reward_state: u8,               // 1 bytes
+    pub open_time: u64,                 // 8 bytes
+    pub end_time: u64,                  // 8 bytes
+    pub last_update_time: u64,          // 8 bytes
+    pub emissions_per_second_x64: u128, // 16 bytes
+    pub reward_total_emissioned: u64,   // 8 bytes
+    pub reward_claimed: u64,            // 8 bytes
+    pub token_mint: Pubkey,             // 32 bytes
+    pub token_vault: Pubkey,            // 32 bytes
+    pub authority: Pubkey,              // 32 bytes
+    pub reward_growth_global_x64: u128, // 16 bytes
+                                        // total: 1+8+8+8+16+8+8+32+32+32+16 = 169 bytes
 }
 
 impl RaydiumLiquidityPoolCLMM {
@@ -161,8 +174,8 @@ impl RaydiumLiquidityPoolCLMM {
         let sqrt_price_x64 = read_u128(data, &mut offset);
         let tick_current = read_i32(data, &mut offset);
         // padding bits
-        let padding3 = read_u16(data, &mut offset);
-        let padding4 = read_u16(data, &mut offset);
+        let _padding3 = read_u16(data, &mut offset);
+        let _padding4 = read_u16(data, &mut offset);
         let fee_growth_global_0_x64 = read_u128(data, &mut offset);
         let fee_growth_global_1_x64 = read_u128(data, &mut offset);
         let protocol_fees_token_0 = read_u64(data, &mut offset);
@@ -172,14 +185,9 @@ impl RaydiumLiquidityPoolCLMM {
         let swap_in_amount_token_1 = read_u128(data, &mut offset);
         let swap_out_amount_token_0 = read_u128(data, &mut offset);
         let status = read_u8(data, &mut offset);
-        // padding bits
-        let mut padding = read_u8(data, &mut offset);
-        padding = read_u8(data, &mut offset);
-        padding = read_u8(data, &mut offset);
-        padding = read_u8(data, &mut offset);
-        padding = read_u8(data, &mut offset);
-        padding = read_u8(data, &mut offset);
-        padding = read_u8(data, &mut offset);
+        // padding bits (7 bytes)
+        offset += 7;
+        // reward_infos = 169 bytes * 3
         let mut reward_infos: [RewardInfo; 3] = std::array::from_fn(|_| RewardInfo {
             reward_state: 0,
             open_time: 0,
@@ -194,24 +202,16 @@ impl RaydiumLiquidityPoolCLMM {
             reward_growth_global_x64: 0,
         });
         for i in 0..3 {
-            // reward_state (u8)
             reward_infos[i].reward_state = read_u8(data, &mut offset);
-            // padding [u8;7]
-            offset += 7;
-            // u64 * 3
             reward_infos[i].open_time = read_u64(data, &mut offset);
             reward_infos[i].end_time = read_u64(data, &mut offset);
             reward_infos[i].last_update_time = read_u64(data, &mut offset);
-            // u128
             reward_infos[i].emissions_per_second_x64 = read_u128(data, &mut offset);
-            // u64 * 2
             reward_infos[i].reward_total_emissioned = read_u64(data, &mut offset);
             reward_infos[i].reward_claimed = read_u64(data, &mut offset);
-            // pubkey * 3
             reward_infos[i].token_mint = read_pubkey(data, &mut offset);
             reward_infos[i].token_vault = read_pubkey(data, &mut offset);
             reward_infos[i].authority = read_pubkey(data, &mut offset);
-            // u128
             reward_infos[i].reward_growth_global_x64 = read_u128(data, &mut offset);
         }
         let mut tick_array_bitmap = [0u64; 16];
@@ -226,8 +226,16 @@ impl RaydiumLiquidityPoolCLMM {
         let fund_fees_token_1 = read_u64(data, &mut offset);
         let open_time = read_u64(data, &mut offset);
         let recent_epoch = read_u64(data, &mut offset);
-        offset += 24 * 8;
-        offset += 32 * 8;
+        // padding1: 24 * 8 = 192 bytes
+        // padding2: 32 * 8 = 256 bytes
+        offset += 24 * 8 + 32 * 8;
+        if offset != data.len() {
+            return Err(format!(
+                "Data parsing incomplete. Expected offset {}, got {}",
+                data.len(),
+                offset
+            ));
+        }
         Ok(RaydiumLiquidityPoolCLMMData {
             bump,
             amm_config,
@@ -334,7 +342,6 @@ mod tests {
     use super::*;
     use solana_network_sdk::Solana;
     use solana_network_sdk::types::Mode::MAIN;
-    use solana_sdk::signature::Keypair;
 
     #[tokio::test]
     async fn test_clmm_data_parsing() -> Result<(), Box<dyn std::error::Error>> {
@@ -346,5 +353,4 @@ mod tests {
         println!("Pool Info: {:?}", pool_data);
         Ok(())
     }
-    //
 }

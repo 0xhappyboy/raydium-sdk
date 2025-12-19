@@ -399,67 +399,14 @@ impl RaydiumLiquidityPoolData {
             conver_balance(quote_token_balance.unwrap(), self.quote_decimal);
         quote_amount_normalized / base_amount_normalized
     }
-    pub fn display(&self) {
-        println!("status:{:?}", self.status);
-        println!("nonce:{:?}", self.nonce);
-        println!("max_order:{:?}", self.max_order);
-        println!("depth:{:?}", self.depth);
-        println!("base_decimal:{:?}", self.base_decimal);
-        println!("quote_decimal:{:?}", self.quote_decimal);
-        println!("state:{:?}", self.state);
-        println!("resetFlag:{:?}", self.reset_flag);
-        println!("minSize:{:?}", self.min_size);
-        println!("volMaxCutRatio:{:?}", self.vol_max_cut_ratio);
-        println!("amountWaveRatio:{:?}", self.amount_wave_ratio);
-        println!("baseLotSize:{:?}", self.base_lot_size);
-        println!("quoteLotSize:{:?}", self.quote_lot_size);
-        println!("minPriceMultiplier:{:?}", self.min_price_multiplier);
-        println!("maxPriceMultiplier:{:?}", self.max_price_multiplier);
-        println!("systemDecimalValue:{:?}", self.system_decimal_value);
-        println!("minSeparateNumerator:{:?}", self.min_separate_numerator);
-        println!("minSeparateDenominator:{:?}", self.min_separate_denominator);
-        println!("tradeFeeNumerator:{:?}", self.trade_fee_numerator);
-        println!("tradeFeeDenominator:{:?}", self.trade_fee_denominator);
-        println!("pnlNumerator:{:?}", self.pnl_numerator);
-        println!("pnlDenominator:{:?}", self.pnl_denominator);
-        println!("swapFeeNumerator:{:?}", self.swap_fee_numerator);
-        println!("swapFeeDenominator:{:?}", self.swap_fee_denominator);
-        println!("baseNeedTakePnl:{:?}", self.base_need_take_pnl);
-        println!("quoteNeedTakePnl:{:?}", self.quote_need_take_pnl);
-        println!("quoteTotalPnl:{:?}", self.quote_total_pnl);
-        println!("baseTotalPnl:{:?}", self.base_total_pnl);
-        println!("poolOpenTime:{:?}", self.pool_open_time);
-        println!("punishPcAmount:{:?}", self.punish_pc_amount);
-        println!("punishCoinAmount:{:?}", self.punish_coin_amount);
-        println!("orderbookToInitTime:{:?}", self.orderbook_to_init_time);
-        println!("swapBaseInAmount:{:?}", self.swap_base_in_amount);
-        println!("swapQuoteOutAmount:{:?}", self.swap_quote_out_amount);
-        println!("swapBase2QuoteFee:{:?}", self.swap_base2_quote_fee);
-        println!("swapQuoteInAmount:{:?}", self.swap_quote_in_amount);
-        println!("swapBaseOutAmount:{:?}", self.swap_base_out_amount);
-        println!("swapQuote2BaseFee:{:?}", self.swap_quote2_base_fee);
-        println!("baseVault:{:?}", self.base_vault);
-        println!("quoteVault:{:?}", self.quote_vault);
-        println!("baseMint:{:?}", self.base_mint);
-        println!("quoteMint:{:?}", self.quote_mint);
-        println!("lpMint:{:?}", self.lp_mint);
-        println!("openOrders:{:?}", self.open_orders);
-        println!("marketId:{:?}", self.market_id);
-        println!("marketProgramId:{:?}", self.market_program_id);
-        println!("targetOrders:{:?}", self.target_orders);
-        println!("withdrawQueue:{:?}", self.withdraw_queue);
-        println!("lpVault:{:?}", self.lp_vault);
-        println!("owner:{:?}", self.owner);
-        println!("lpReserve:{:?}", self.lp_reserve);
-    }
 }
 
 #[cfg(test)]
 mod tests {
 
+    use crate::{Raydium, Solana};
     use solana_network_sdk::types::Mode::MAIN;
     use std::sync::Arc;
-    use crate::{Raydium, Solana};
 
     #[tokio::test]
     async fn test() -> Result<(), Box<dyn std::error::Error>> {

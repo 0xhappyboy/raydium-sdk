@@ -232,37 +232,6 @@ impl RaydiumLiquidityPoolCPMMData {
             Err("Base token amount is zero, cannot calculate price".to_string())
         }
     }
-
-    pub fn display(&self) {
-        println!("=== CPMM Pool Info ===");
-        println!("amm_config: {:?}", self.amm_config);
-        println!("pool_creator: {:?}", self.pool_creator);
-        println!("token_0_vault: {:?}", self.token_0_vault);
-        println!("token_1_vault: {:?}", self.token_1_vault);
-        println!("lp_mint: {:?}", self.lp_mint);
-        println!("token_0_mint: {:?}", self.token_0_mint);
-        println!("token_1_mint: {:?}", self.token_1_mint);
-        println!("token_0_program: {:?}", self.token_0_program);
-        println!("token_1_program: {:?}", self.token_1_program);
-        println!("observation_key: {:?}", self.observation_key);
-        println!("auth_bump: {}", self.auth_bump);
-        println!("status: {}", self.status);
-        println!("lp_mint_decimals: {}", self.lp_mint_decimals);
-        println!("mint_0_decimals: {}", self.mint_0_decimals);
-        println!("mint_1_decimals: {}", self.mint_1_decimals);
-        println!("lp_supply: {}", self.lp_supply);
-        println!("protocol_fees_token_0: {}", self.protocol_fees_token_0);
-        println!("protocol_fees_token_1: {}", self.protocol_fees_token_1);
-        println!("fund_fees_token_0: {}", self.fund_fees_token_0);
-        println!("fund_fees_token_1: {}", self.fund_fees_token_1);
-        println!("open_time: {}", self.open_time);
-        println!("recent_epoch: {}", self.recent_epoch);
-        println!("creator_fee_on: {}", self.creator_fee_on);
-        println!("enable_creator_fee: {}", self.enable_creator_fee);
-        println!("creator_fees_token_0: {}", self.creator_fees_token_0);
-        println!("creator_fees_token_1: {}", self.creator_fees_token_1);
-        println!("=== End CPMM Pool Info ===");
-    }
 }
 
 #[cfg(test)]

@@ -2448,7 +2448,7 @@ dependencies = [
 
 [[package]]
 name = "raydium-sdk"
-version = "0.1.8"
+version = "0.1.9"
 dependencies = [
  "bytemuck",
  "hex",
@@ -3902,14 +3902,15 @@ dependencies = [
 
 [[package]]
 name = "solana-network-sdk"
-version = "0.4.6"
+version = "0.4.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f5135b9b0ac920d3d15e3201b110ac0b4e4d39037b9dffaf87c21c965e8b4fee"
+checksum = "2656f79aec8937e9e9cfc1ae8d62da5a5d3f5d51210cf2f9171750d1df5d251c"
 dependencies = [
  "base64 0.22.1",
  "bs58",
  "bytemuck",
  "chrono",
+ "futures",
  "reqwest",
  "serde",
  "serde_json",

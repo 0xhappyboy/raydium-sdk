@@ -453,3 +453,23 @@ impl RaydiumLiquidityPoolData {
         println!("lpReserve:{:?}", self.lp_reserve);
     }
 }
+
+#[cfg(test)]
+mod tests {
+
+    use solana_network_sdk::types::Mode::MAIN;
+    use std::sync::Arc;
+    use crate::{Raydium, Solana};
+
+    #[tokio::test]
+    async fn test() -> Result<(), Box<dyn std::error::Error>> {
+        let solana = Solana::new(MAIN).unwrap();
+        let raydium = Raydium::new(Arc::new(solana));
+        // 58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2 SOL-USDC pool
+        let pool_data = raydium
+            .get_liquidity_pool_v4("58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2")
+            .await;
+        println!("Pool Info: {:?}", pool_data);
+        Ok(())
+    }
+}

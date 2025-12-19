@@ -264,3 +264,22 @@ impl RaydiumLiquidityPoolCPMMData {
         println!("=== End CPMM Pool Info ===");
     }
 }
+
+#[cfg(test)]
+mod tests {
+
+    use crate::{Raydium, Solana};
+    use solana_network_sdk::types::Mode::MAIN;
+    use std::sync::Arc;
+
+    #[tokio::test]
+    async fn test() -> Result<(), Box<dyn std::error::Error>> {
+        let solana = Solana::new(MAIN).unwrap();
+        let raydium = Raydium::new(Arc::new(solana));
+        let pool_data = raydium
+            .get_liquidity_pool_cpmm("8Lq7gz2aEzkMQNfLpYmjv3V8JbD26LRbFd11SnRicCE6")
+            .await;
+        println!("Pool Info: {:?}", pool_data);
+        Ok(())
+    }
+}

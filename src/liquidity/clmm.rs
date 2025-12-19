@@ -108,11 +108,10 @@ pub struct RewardInfo {
 
 impl RaydiumLiquidityPoolCLMM {
     pub fn get_liquidity_pool_info(data: &[u8]) -> Result<RaydiumLiquidityPoolCLMMData, String> {
-        const EXPECTED_LEN: usize = 1544;
-        if data.len() != EXPECTED_LEN {
+        if data.len() != RAYDIUM_LIQUIDITY_POOL_CLMM_DATA_SIZE {
             return Err(format!(
                 "CLMM pool data size mismatch. Expected {}, got {}",
-                EXPECTED_LEN,
+                RAYDIUM_LIQUIDITY_POOL_CLMM_DATA_SIZE,
                 data.len()
             ));
         }

@@ -1,17 +1,19 @@
+pub mod launchpad;
 pub mod liquidity;
 pub mod typs;
 
-use solana_client::nonblocking::rpc_client::RpcClient;
 use solana_network_sdk::{
     Solana,
     types::{UnifiedError, UnifiedResult},
 };
-use solana_sdk::pubkey::Pubkey;
-use std::{str::FromStr, sync::Arc};
 
-use crate::liquidity::{
-    clmm::{RaydiumLiquidityPoolCLMM, RaydiumLiquidityPoolCLMMData}, cpmm::{RaydiumLiquidityPoolCPMM, RaydiumLiquidityPoolCPMMData}, v4::{RaydiumLiquidityPoolData, RaydiumLiquidityPoolV4}
-};
+use std::sync::Arc;
+
+use crate::{launchpad::{LaunchpadPool, LaunchpadPoolData}, liquidity::{
+    clmm::{RaydiumLiquidityPoolCLMM, RaydiumLiquidityPoolCLMMData},
+    cpmm::{RaydiumLiquidityPoolCPMM, RaydiumLiquidityPoolCPMMData},
+    v4::{RaydiumLiquidityPoolData, RaydiumLiquidityPoolV4},
+}};
 
 /// raydium data structure
 pub struct Raydium {
@@ -72,6 +74,19 @@ impl Raydium {
             .await
             .map_err(|e| UnifiedError::Error(format!("{:?}", e)))?;
         let pool = RaydiumLiquidityPoolCLMM::get_liquidity_pool_info(&v)
+            .map_err(|e| UnifiedError::Error(format!("{:?}", e)))?;
+        Ok(pool)
+    }
+    pub async fn get_liquidity_pool_launchpad(
+        &self,
+        address: &str,
+    ) -> UnifiedResult<LaunchpadPoolData, String> {
+        let v = self
+            .solana
+            .get_account_data(address)
+            .await
+            .map_err(|e| UnifiedError::Error(format!("{:?}", e)))?;
+        let pool = LaunchpadPool::get_liquidity_pool_info(&v)
             .map_err(|e| UnifiedError::Error(format!("{:?}", e)))?;
         Ok(pool)
     }

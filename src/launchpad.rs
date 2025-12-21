@@ -343,15 +343,15 @@ impl LaunchpadPoolData {
 
 #[cfg(test)]
 mod tests {
+    use solana_network_client::SolanaClient;
+
     use crate::Raydium;
-    use solana_network_sdk::Solana;
-    use solana_network_sdk::types::Mode::MAIN;
     use std::sync::Arc;
 
     #[tokio::test]
     async fn test_clmm_data_parsing() -> Result<(), Box<dyn std::error::Error>> {
-        let solana = Solana::new(MAIN).unwrap();
-        let raydium = Raydium::new(Arc::new(solana));
+        let solana_client = SolanaClient::new(solana_network_client::Mode::MAIN).unwrap();
+        let raydium = Raydium::new(Arc::new(solana_client));
         let pool_data = raydium
             .get_liquidity_pool_launchpad("GSxb28CtEf9vJHEoB9D2NoNwbbkj8SxQN3WN86qvMULZ")
             .await;

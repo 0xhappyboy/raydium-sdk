@@ -404,14 +404,15 @@ impl RaydiumLiquidityPoolData {
 #[cfg(test)]
 mod tests {
 
-    use crate::{Raydium, Solana};
-    use solana_network_sdk::types::Mode::MAIN;
+    use solana_network_client::SolanaClient;
+
+    use crate::Raydium;
     use std::sync::Arc;
 
     #[tokio::test]
     async fn test() -> Result<(), Box<dyn std::error::Error>> {
-        let solana = Solana::new(MAIN).unwrap();
-        let raydium = Raydium::new(Arc::new(solana));
+        let solana_client = SolanaClient::new(solana_network_client::Mode::MAIN).unwrap();
+        let raydium = Raydium::new(Arc::new(solana_client));
         // 58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2 SOL-USDC pool
         let pool_data = raydium
             .get_liquidity_pool_v4("58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2")

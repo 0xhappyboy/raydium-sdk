@@ -2,22 +2,23 @@ pub mod launchpad;
 pub mod liquidity;
 pub mod typs;
 
-use solana_network_sdk::{
-    Solana,
-    types::{UnifiedError, UnifiedResult},
+use solana_network_client::SolanaClient;
+use solana_sdk::pubkey::Pubkey;
+
+use std::{str::FromStr, sync::Arc};
+
+use crate::{
+    launchpad::{LaunchpadPool, LaunchpadPoolData},
+    liquidity::{
+        clmm::{RaydiumLiquidityPoolCLMM, RaydiumLiquidityPoolCLMMData},
+        cpmm::{RaydiumLiquidityPoolCPMM, RaydiumLiquidityPoolCPMMData},
+        v4::{RaydiumLiquidityPoolData, RaydiumLiquidityPoolV4},
+    },
 };
-
-use std::sync::Arc;
-
-use crate::{launchpad::{LaunchpadPool, LaunchpadPoolData}, liquidity::{
-    clmm::{RaydiumLiquidityPoolCLMM, RaydiumLiquidityPoolCLMMData},
-    cpmm::{RaydiumLiquidityPoolCPMM, RaydiumLiquidityPoolCPMMData},
-    v4::{RaydiumLiquidityPoolData, RaydiumLiquidityPoolV4},
-}};
 
 /// raydium data structure
 pub struct Raydium {
-    pub solana: Arc<Solana>,
+    pub solana_client: Arc<SolanaClient>,
 }
 
 impl Raydium {
@@ -27,8 +28,10 @@ impl Raydium {
     /// let sol = Solana::new(solana_network_sdk::types::Mode::MAIN);
     /// let raydium = Raydium::new(Arc::new(sol));
     /// ```
-    pub fn new(solana: Arc<Solana>) -> Self {
-        Self { solana: solana }
+    pub fn new(solana_client: Arc<SolanaClient>) -> Self {
+        Self {
+            solana_client: solana_client,
+        }
     }
     /// get v4 raydium liquidity pool
     /// Example
@@ -41,53 +44,75 @@ impl Raydium {
     pub async fn get_liquidity_pool_v4(
         &self,
         address: &str,
-    ) -> UnifiedResult<RaydiumLiquidityPoolData, String> {
+    ) -> Result<RaydiumLiquidityPoolData, String> {
         let v = self
-            .solana
-            .get_account_data(address)
+            .solana_client
+            .client_arc()
+            .get_account_data(
+                &Pubkey::from_str(address)
+                    .map_err(|e| format!("{:?}", e))
+                    .unwrap(),
+            )
             .await
-            .map_err(|e| UnifiedError::Error(format!("{:?}", e)))?;
-        let pool = RaydiumLiquidityPoolV4::get_liquidity_pool_info(&v)
-            .map_err(|e| UnifiedError::Error(format!("{:?}", e)))?;
+            .map_err(|e| format!("{:?}", e))?;
+        let pool =
+            RaydiumLiquidityPoolV4::get_liquidity_pool_info(&v).map_err(|e| format!("{:?}", e))?;
         Ok(pool)
     }
+
     pub async fn get_liquidity_pool_cpmm(
         &self,
         address: &str,
-    ) -> UnifiedResult<RaydiumLiquidityPoolCPMMData, String> {
+    ) -> Result<RaydiumLiquidityPoolCPMMData, String> {
         let v = self
-            .solana
-            .get_account_data(address)
+            .solana_client
+            .client_arc()
+            .get_account_data(
+                &Pubkey::from_str(address)
+                    .map_err(|e| format!("{:?}", e))
+                    .unwrap(),
+            )
             .await
-            .map_err(|e| UnifiedError::Error(format!("{:?}", e)))?;
+            .map_err(|e| format!("{:?}", e))?;
         let pool = RaydiumLiquidityPoolCPMM::get_liquidity_pool_info(&v)
-            .map_err(|e| UnifiedError::Error(format!("{:?}", e)))?;
+            .map_err(|e| format!("{:?}", e))?;
         Ok(pool)
     }
+
     pub async fn get_liquidity_pool_clmm(
         &self,
         address: &str,
-    ) -> UnifiedResult<RaydiumLiquidityPoolCLMMData, String> {
+    ) -> Result<RaydiumLiquidityPoolCLMMData, String> {
         let v = self
-            .solana
-            .get_account_data(address)
+            .solana_client
+            .client_arc()
+            .get_account_data(
+                &Pubkey::from_str(address)
+                    .map_err(|e| format!("{:?}", e))
+                    .unwrap(),
+            )
             .await
-            .map_err(|e| UnifiedError::Error(format!("{:?}", e)))?;
+            .map_err(|e| format!("{:?}", e))?;
         let pool = RaydiumLiquidityPoolCLMM::get_liquidity_pool_info(&v)
-            .map_err(|e| UnifiedError::Error(format!("{:?}", e)))?;
+            .map_err(|e| format!("{:?}", e))?;
         Ok(pool)
     }
+
     pub async fn get_liquidity_pool_launchpad(
         &self,
         address: &str,
-    ) -> UnifiedResult<LaunchpadPoolData, String> {
+    ) -> Result<LaunchpadPoolData, String> {
         let v = self
-            .solana
-            .get_account_data(address)
+            .solana_client
+            .client_arc()
+            .get_account_data(
+                &Pubkey::from_str(address)
+                    .map_err(|e| format!("{:?}", e))
+                    .unwrap(),
+            )
             .await
-            .map_err(|e| UnifiedError::Error(format!("{:?}", e)))?;
-        let pool = LaunchpadPool::get_liquidity_pool_info(&v)
-            .map_err(|e| UnifiedError::Error(format!("{:?}", e)))?;
+            .map_err(|e| format!("{:?}", e))?;
+        let pool = LaunchpadPool::get_liquidity_pool_info(&v).map_err(|e| format!("{:?}", e))?;
         Ok(pool)
     }
     // get token price by address
